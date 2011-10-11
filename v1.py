@@ -5,7 +5,17 @@ from flask import url_for
 from flask import g
 
 from .auth import requires_auth
-from .weeks import get_next_week, get_prev_week
+from .dates import get_next_week, get_prev_week
+from .dates import get_next_month, get_prev_month
+
+
+def get_template_url(name):
+    if name == '.week':
+        url = url_for('.week', year="11111", week="22222")
+        return url.replace('11111', '<year>').replace('22222', '<week>')
+    if name == '.month':
+        url = url_for('.month', year="11111", month="22222")
+        return url.replace('11111', '<year>').replace('22222', '<month>')
 
 
 @requires_auth
@@ -17,7 +27,10 @@ def index():
                     "href": url_for('.projects')
         }, {
                     "rel": "activities-by-week",
-                    "href": url_for('.week', year="<year>", week="<week>")
+                    "href": get_template_url(".week")
+        }, {
+                    "rel": "activities-by-month",
+                    "href": get_template_url(".month")
         }]
     })
 
@@ -86,6 +99,32 @@ def get_week(year, week):
     })
 
 
+def get_next_month_url(year, month):
+    y, m = get_next_month(year, month)
+    return url_for(".month", year=y, month=m)
+
+
+def get_prev_month_url(year, month):
+    y, m = get_prev_month(year, month)
+    return url_for(".month", year=y, month=m)
+
+
+@requires_auth
+def get_month(year, month):
+    activities = serialize_activities(g.ct.get_month(year, month))
+
+    return jsonify({
+            "activities": activities,
+            "links": [{
+                    "rel": "next-month",
+                    "href": get_next_month_url(year, month)
+            }, {
+                    "rel": "prev-month",
+                    "href": get_prev_month_url(year, month)
+            }]
+    })
+
+
 def add_routes(api):
     root = 'v1_0'
     api.add_url_rule('/v1/',
@@ -94,3 +133,5 @@ def add_routes(api):
                      root + '.projects', get_projects)
     api.add_url_rule('/v1/week/<int:year>/<int:week>',
                      root + '.week', get_week)
+    api.add_url_rule('/v1/month/<int:year>/<int:month>',
+                     root + '.month', get_month)

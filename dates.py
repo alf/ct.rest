@@ -1,5 +1,6 @@
 from __future__ import absolute_import
 from datetime import timedelta, datetime, date
+from calendar import monthrange
 
 import unittest
 
@@ -32,6 +33,31 @@ def get_prev_week(year, week):
     return d.isocalendar()[:2]
 
 
+def get_next_month(year, month):
+    _, days = monthrange(year, month)
+    d = date(year, month, 1) + timedelta(days=days)
+    return (d.year, d.month)
+
+
+def get_prev_month(year, month):
+    d = date(year, month, 1) - timedelta(days=1)
+    return (d.year, d.month)
+
+
+class MonthTestCase(unittest.TestCase):
+    def test_that_next_month_increases_month(self):
+        self.assertEquals((2011, 2), get_next_month(2011, 1))
+
+    def test_that_next_month_wraps_year(self):
+        self.assertEquals((2012, 1), get_next_month(2011, 12))
+
+    def test_that_prev_month_decreases_month(self):
+        self.assertEquals((2011, 2), get_prev_month(2011, 3))
+
+    def test_that_prev_month_wraps_year(self):
+        self.assertEquals((2011, 12), get_prev_month(2012, 1))
+
+
 class WeekTestCase(unittest.TestCase):
     def test_that_tofirstdayinisoweek_finds_monday_31_dec_2012(self):
         d = tofirstdayinisoweek(2013, 1).date()
@@ -49,9 +75,9 @@ class WeekTestCase(unittest.TestCase):
 
     def test_that_next_week_wraps_year(self):
         self.assertEquals((2012, 1), get_next_week(2011, 52))
-        
+
     def test_that_prev_week_wraps_year(self):
         self.assertEquals((2011, 52), get_prev_week(2012, 1))
-        
+
 if __name__ == "__main__":
     unittest.main()
