@@ -1,9 +1,11 @@
 from __future__ import absolute_import
 
-from .auth import requires_auth
 from flask import jsonify
 from flask import url_for
 from flask import g
+
+from .auth import requires_auth
+from .weeks import get_next_week, get_prev_week
 
 
 @requires_auth
@@ -40,12 +42,11 @@ def serialize_activities(activities):
         if activity.duration <= 0:
             continue
 
-        date = activity.day.strftime("%Y-%m-%d")
         result.append({
                 'id': activity.project_id,
                 'comment': activity.comment,
                 'duration': str(activity.duration),
-                'day': date
+                'day': activity.day.strftime("%Y-%m-%d")
         })
     return result
 
@@ -59,12 +60,29 @@ def get_projects():
     })
 
 
+def get_next_week_url(year, week):
+    y, w = get_next_week(year, week)
+    return url_for(".week", year=y, week=w)
+
+
+def get_prev_week_url(year, week):
+    y, w = get_prev_week(year, week)
+    return url_for(".week", year=y, week=w)
+
+
 @requires_auth
 def get_week(year, week):
     activities = serialize_activities(g.ct.get_week(year, week))
 
     return jsonify({
-            "activities": activities
+            "activities": activities,
+            "links": [{
+                    "rel": "next-week",
+                    "href": get_next_week_url(year, week)
+            }, {
+                    "rel": "prev-week",
+                    "href": get_prev_week_url(year, week)
+            }]
     })
 
 
