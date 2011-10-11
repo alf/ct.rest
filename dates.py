@@ -44,6 +44,36 @@ def get_prev_month(year, month):
     return (d.year, d.month)
 
 
+def get_next_day(year, month, day):
+    d = date(year, month, day) + timedelta(days=1)
+    return (d.year, d.month, d.day)
+
+
+def get_prev_day(year, month, day):
+    d = date(year, month, day) - timedelta(days=1)
+    return (d.year, d.month, d.day)
+
+
+class DayTestCase(unittest.TestCase):
+    def test_that_next_day_increases_day(self):
+        self.assertEquals((2011, 2, 2), get_next_day(2011, 2, 1))
+
+    def test_that_next_day_wraps_month(self):
+        self.assertEquals((2011, 2, 1), get_next_day(2011, 1, 31))
+
+    def test_that_next_day_wraps_year(self):
+        self.assertEquals((2011, 1, 1), get_next_day(2010, 12, 31))
+
+    def test_that_prev_day_decreases_day(self):
+        self.assertEquals((2011, 2, 1), get_prev_day(2011, 2, 2))
+
+    def test_that_prev_day_wraps_month(self):
+        self.assertEquals((2011, 1, 31), get_prev_day(2011, 2, 1))
+
+    def test_that_prev_day_wraps_year(self):
+        self.assertEquals((2010, 12, 31), get_prev_day(2011, 1, 1))
+
+
 class MonthTestCase(unittest.TestCase):
     def test_that_next_month_increases_month(self):
         self.assertEquals((2011, 2), get_next_month(2011, 1))
