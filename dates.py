@@ -21,6 +21,10 @@ def tofirstdayinisoweek(year, week):
     return ret
 
 
+def get_current_week():
+    return datetime.now().isocalendar()[:2]
+
+
 def get_next_week(year, week):
     current = tofirstdayinisoweek(year, week)
     d = current + timedelta(days=7)
@@ -33,25 +37,43 @@ def get_prev_week(year, week):
     return d.isocalendar()[:2]
 
 
+def get_month_from_week(year, week):
+    d = tofirstdayinisoweek(year, week)
+    return d.timetuple()[:2]
+
+
+def get_week_from_day(year, month, day):
+    d = date(year, month, day)
+    return d.isocalendar()[:2]
+
+
+def get_current_month():
+    return datetime.now().timetuple()[:2]
+
+
 def get_next_month(year, month):
     _, days = monthrange(year, month)
     d = date(year, month, 1) + timedelta(days=days)
-    return (d.year, d.month)
+    return d.timetuple()[:2]
 
 
 def get_prev_month(year, month):
     d = date(year, month, 1) - timedelta(days=1)
-    return (d.year, d.month)
+    return d.timetuple()[:2]
+
+
+def get_current_day():
+    return datetime.now().timetuple()[:3]
 
 
 def get_next_day(year, month, day):
     d = date(year, month, day) + timedelta(days=1)
-    return (d.year, d.month, d.day)
+    return d.timetuple()[:3]
 
 
 def get_prev_day(year, month, day):
     d = date(year, month, day) - timedelta(days=1)
-    return (d.year, d.month, d.day)
+    return d.timetuple()[:3]
 
 
 class DayTestCase(unittest.TestCase):
@@ -87,6 +109,9 @@ class MonthTestCase(unittest.TestCase):
     def test_that_prev_month_wraps_year(self):
         self.assertEquals((2011, 12), get_prev_month(2012, 1))
 
+    def test_that_month_from_week_exists(self):
+        self.assertEquals((2011, 2), get_month_from_week(2011, 9))
+
 
 class WeekTestCase(unittest.TestCase):
     def test_that_tofirstdayinisoweek_finds_monday_31_dec_2012(self):
@@ -96,6 +121,9 @@ class WeekTestCase(unittest.TestCase):
     def test_that_tofirstdayinisoweek_finds_monday_2_jan_2012(self):
         d = tofirstdayinisoweek(2012, 1).date()
         self.assertEquals(date(2012, 1, 2), d)
+
+    def test_that_prev_week_decreases_week(self):
+        self.assertEquals((2011, 8), get_prev_week(2011, 9))
 
     def test_that_next_week_increases_week(self):
         self.assertEquals((2011, 10), get_next_week(2011, 9))
@@ -108,6 +136,9 @@ class WeekTestCase(unittest.TestCase):
 
     def test_that_prev_week_wraps_year(self):
         self.assertEquals((2011, 52), get_prev_week(2012, 1))
+
+    def test_that_week_from_day_exists(self):
+        self.assertEquals((2011, 6), get_week_from_day(2011, 2, 9))
 
 if __name__ == "__main__":
     unittest.main()
