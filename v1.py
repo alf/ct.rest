@@ -6,13 +6,14 @@ from flask import request
 from .auth import requires_auth
 from . import ct
 from . import url
+from .dates import get_current_day
 
 
 @requires_auth
 def index():
     return jsonify({
         "description": "REST API for CT version 1.0",
-        "activities": ct.get_current_day(),
+        "current-day": current_day(),
         "available-projects": ct.get_projects(),
         "links": [{
                     "rel": "available-projects",
@@ -39,12 +40,21 @@ def index():
     })
 
 
+def current_day():
+    y, m, d = get_current_day()
+    return get_day_data(y, m, d)
+
+
 @requires_auth
 def day(year, month, day):
     if request.method == "PUT":
         ct.set_day(year, month, day, request.json['activities'])
 
-    return jsonify({
+    return jsonify(get_day_data(year, month, day))
+
+
+def get_day_data(year, month, day):
+    return {
             "activities": ct.get_day(year, month, day),
             "links": [{
                     "rel": "current",
@@ -65,7 +75,7 @@ def day(year, month, day):
                     "rel": "self",
                     "href": url.get_day(year, month, day)
             }]
-    })
+    }
 
 
 @requires_auth
