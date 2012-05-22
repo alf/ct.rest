@@ -6,21 +6,18 @@ from flask import request
 from .auth import requires_auth
 from . import ct
 from . import url
-from .dates import get_current_day
+from .dates import get_current_week
 
 
 @requires_auth
 def index():
     return jsonify({
         "description": "REST API for CT version 1.0",
-        "current-day": current_day(),
+        "current-week": current_week(),
         "available-projects": ct.get_projects(),
         "links": [{
                     "rel": "available-projects",
                     "href": url.get_projects()
-        }, {
-                    "rel": "current-day",
-                    "href": url.get_current_day()
         }, {
                     "rel": "current-week",
                     "href": url.get_current_week()
@@ -33,16 +30,13 @@ def index():
         }, {
                     "rel": "activities-by-month",
                     "href": url.get_template(".v1_month")
-        }, {
-                    "rel": "activities-by-day",
-                    "href": url.get_template(".v1_day")
         }]
     })
 
 
-def current_day():
-    y, m, d = get_current_day()
-    return get_day_data(y, m, d)
+def current_week():
+    y, w = get_current_week()
+    return get_week_data(y, w)
 
 
 @requires_auth
@@ -80,7 +74,11 @@ def get_day_data(year, month, day):
 
 @requires_auth
 def week(year, week):
-    return jsonify({
+    return jsonify(get_week_data(year, week))
+
+
+def get_week_data(year, week):
+    return {
             "activities": ct.get_week(year, week),
             "links": [{
                     "rel": "current",
@@ -95,7 +93,7 @@ def week(year, week):
                     "rel": "up",
                     "href": url.get_month_from_week(year, week)
             }]
-    })
+    }
 
 
 @requires_auth
