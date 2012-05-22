@@ -101,4 +101,4 @@ def get_month_from_week(year, week):
 
 
 def get_projects():
-    return url_for(".v1_projects")
+    return url_for(".v1_projects", _external=True)

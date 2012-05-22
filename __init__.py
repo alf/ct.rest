@@ -16,10 +16,10 @@ def index():
         "description": "REST API for CT",
         "links": [{
                     "rel": "api-version-1.0",
-                    "href": url_for(".v1_index")
+                    "href": url_for(".v1_index", _external=True)
         }, {
                     "rel": "latest",
-                    "href": url_for(".v1_index")
+                    "href": url_for(".v1_index", _external=True)
         }]
     })
 
