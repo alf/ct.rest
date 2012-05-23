@@ -10,7 +10,6 @@ from . import v1
 api = Blueprint('api', __name__)
 
 @api.route('/')
-@requires_auth
 def index():
     return jsonify({
         "description": "REST API for CT",
