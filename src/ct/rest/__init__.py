@@ -4,12 +4,13 @@ from flask import Blueprint
 from flask import jsonify
 from flask import url_for
 
-from .auth import requires_auth
 from . import v1
+from .decorators import crossdomain
 
 api = Blueprint('api', __name__)
 
 @api.route('/')
+@crossdomain(origin='*')
 def index():
     return jsonify({
         "description": "REST API for CT",

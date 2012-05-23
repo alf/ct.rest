@@ -1,6 +1,5 @@
 from __future__ import absolute_import
 
-from functools import wraps
 from hashlib import sha256
 from flask import request, Response
 from flask import session, g
@@ -62,16 +61,3 @@ def authenticate():
     'Could not verify your access level for that URL.\n'
     'You have to login with proper credentials', 401,
     get_auth_headers())
-
-
-def requires_auth(f):
-    @wraps(f)
-    def decorated(*args, **kwargs):
-        auth = request.authorization
-        if not auth or not check_auth(auth.username, auth.password):
-            return authenticate()
-
-        g.ct = get_ct_object(auth.username, auth.password)
-
-        return f(*args, **kwargs)
-    return decorated

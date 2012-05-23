@@ -3,13 +3,14 @@ from __future__ import absolute_import
 from flask import jsonify
 from flask import request
 
-from .auth import requires_auth
+from .decorators import requires_auth, crossdomain
 from . import ct
 from . import url
 from . import dates
 
 
 @requires_auth
+@crossdomain(origin='*')
 def index():
     return jsonify({
         "description": "REST API for CT version 1.0",
@@ -29,6 +30,7 @@ def index():
 
 
 @requires_auth
+@crossdomain(origin='*')
 def get_current_week():
     if request.method == "PUT":
         year, week = dates.get_current_week()
@@ -38,6 +40,7 @@ def get_current_week():
 
 
 @requires_auth
+@crossdomain(origin='*')
 def get_projects():
     return jsonify(get_projects_data())
 
