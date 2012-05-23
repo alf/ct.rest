@@ -1,7 +1,10 @@
 #!/usr/bin/env python
 
+import sys
+sys.path.append("src/ct")
+
 from flask import Flask
-from ct.rest import api
+from rest import api
 
 DEBUG = True
 ASSETS_DEBUG = True

@@ -2,3 +2,4 @@
 /*.pyc
 /build
 *.pyc
+/src/ct.rest.egg-info
