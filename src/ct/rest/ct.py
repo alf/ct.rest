@@ -8,39 +8,26 @@ from ct.core.activity import Activity
 from . import dates
 
 
-def get_current_day():
-    y, m, d = dates.get_current_day()
-    return get_day(y, m, d)
+def get_week(year, week):
+    return serialize_activities(g.ct.get_week(year, week))
 
 
-def get_day(year, month, day):
-    return serialize_activities(g.ct.get_day(year, month, day))
+def set_week(year, week, data):
+    current_activities = g.ct.get_week(year, week)
+    reported_activities = data['activities']
 
-
-def set_day(year, month, day, data):
-    current_activities = g.ct.get_day(year, month, day)
-    to_delete = [x for x in current_activities if not x in data]
-
-    for row in data:
-        activity = activity_from_dict(row)
-        g.ct.report_activity(activity)
-
+    to_delete = [x for x in current_activities if not x in reported_activities]
     for row in to_delete:
-        data['duration'] = 0
-        activity = activity_from_dict(row)
+        row['duration'] = 0
+        reported_activities.append(row)
+
+    activities = [activity_from_dict(row) for row in reported_activities]
+    for activity in activities:
         g.ct.report_activity(activity)
 
 
 def get_projects():
     return serialize_projects(g.ct.get_projects())
-
-
-def get_week(year, week):
-    return serialize_activities(g.ct.get_week(year, week))
-
-
-def get_month(year, month):
-    return serialize_activities(g.ct.get_month(year, month))
 
 
 def serialize_projects(projects):
@@ -60,9 +47,6 @@ def serialize_projects(projects):
 def serialize_activities(activities):
     result = []
     for activity in activities:
-        if activity.duration <= 0:
-            continue
-
         result.append({
                 'id': activity.project_id,
                 'comment': activity.comment,
